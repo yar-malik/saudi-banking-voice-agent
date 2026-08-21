@@ -1,0 +1,372 @@
+{
+  "industry": "banking",
+  "slug": "banking",
+  "greeting": {
+    "ar": "أهلاً بك، معك ليلى من خدمة العملاء. كيف أقدر أساعدك؟",
+    "en": "Hello, this is Layla in customer service. How can I help?"
+  },
+  "flows": [
+    {
+      "id": "dispute",
+      "name": "Card dispute",
+      "promise": "A disputed transaction opened, provisionally credited and confirmed — without a queue.",
+      "kind": "call",
+      "beats": [
+        {
+          "at": 0.2,
+          "kind": "msg",
+          "who": "CALLER",
+          "ar": "في عملية على بطاقتي ما أعرفها، مبلغ ألف وخمسمية ريال.",
+          "en": "There's a charge on my card I don't recognise — 1,500 riyals."
+        },
+        {
+          "at": 3.2,
+          "kind": "tool",
+          "name": "authenticate_caller",
+          "args": "{ \"checked\": \"voice + last 4 of ID\" }",
+          "result": "{ \"verified\": true, \"customer_id\": \"C-88213\" }"
+        },
+        {
+          "at": 5,
+          "kind": "msg",
+          "who": "AGENT",
+          "ar": "تم التحقق. أشوف عملية بألف وخمسمية من متجر إلكتروني أمس الساعة عشر ونص.",
+          "en": "Verified. I can see 1,500 at an online merchant yesterday at 10:30pm."
+        },
+        {
+          "at": 8.4,
+          "kind": "tool",
+          "name": "open_dispute",
+          "args": "{ \"txn\": \"TXN-4417\", \"reason\": \"unauthorised\", \"amount_sar\": 1500 }",
+          "result": "{ \"case_id\": \"DSP-20914\", \"provisional_credit\": true, \"sla_days\": 10 }"
+        },
+        {
+          "at": 10.6,
+          "kind": "msg",
+          "who": "AGENT",
+          "ar": "فتحت لك بلاغ رقم عشرين تسعة أربعطعش، والمبلغ رجع لحسابك مؤقتاً.",
+          "en": "Case 20914 opened, and the amount is provisionally back in your account."
+        }
+      ],
+      "outcome": [
+        [
+          "Case",
+          "DSP-20914"
+        ],
+        [
+          "Provisional credit",
+          "Applied"
+        ],
+        [
+          "Handled by",
+          "AI, start to finish"
+        ]
+      ]
+    },
+    {
+      "id": "fraud",
+      "name": "Fraud call-back",
+      "promise": "Outbound verification on a suspicious transaction, before the customer notices.",
+      "kind": "call",
+      "beats": [
+        {
+          "at": 0.2,
+          "kind": "tool",
+          "name": "fraud_signal",
+          "args": "{ \"txn\": \"TXN-5590\", \"risk\": 0.91, \"geo\": \"unusual\" }",
+          "result": "{ \"action\": \"verify_with_customer\" }"
+        },
+        {
+          "at": 2,
+          "kind": "msg",
+          "who": "AGENT",
+          "ar": "مساك الله بالخير، معك فوهو من البنك. عندنا عملية بثلاثة آلاف ريال، هل هي منك؟",
+          "en": "Good evening, this is your bank. We see a 3,000 riyal transaction — was it you?"
+        },
+        {
+          "at": 5.6,
+          "kind": "msg",
+          "who": "CALLER",
+          "ar": "لا، مو مني.",
+          "en": "No, that wasn't me."
+        },
+        {
+          "at": 7,
+          "kind": "tool",
+          "name": "block_card",
+          "args": "{ \"card\": \"•••4471\", \"reason\": \"customer_denied\" }",
+          "result": "{ \"blocked\": true, \"replacement_issued\": true, \"eta_days\": 3 }"
+        },
+        {
+          "at": 9,
+          "kind": "msg",
+          "who": "AGENT",
+          "ar": "أوقفت البطاقة وطلبت لك بديلة، توصلك خلال ثلاثة أيام.",
+          "en": "Card blocked and a replacement issued — it will reach you in three days."
+        }
+      ],
+      "outcome": [
+        [
+          "Card",
+          "Blocked"
+        ],
+        [
+          "Replacement",
+          "Issued"
+        ],
+        [
+          "Card stopped in",
+          "Under 10 seconds"
+        ]
+      ]
+    },
+    {
+      "id": "balance",
+      "name": "Balance and transfer",
+      "promise": "The simple calls that fill your queue all day, handled without a person.",
+      "kind": "call",
+      "beats": [
+        {
+          "at": 0.2,
+          "kind": "msg",
+          "who": "CALLER",
+          "ar": "أبغى أعرف رصيدي وأحول ألفين لحسابي الثاني.",
+          "en": "I want my balance, and to move 2,000 to my other account."
+        },
+        {
+          "at": 2.8,
+          "kind": "tool",
+          "name": "get_balance",
+          "args": "{ \"customer_id\": \"C-88213\" }",
+          "result": "{ \"available_sar\": 18420.55, \"accounts\": 2 }"
+        },
+        {
+          "at": 4.6,
+          "kind": "msg",
+          "who": "AGENT",
+          "ar": "رصيدك ثمنطعش ألف وأربعمية وعشرين ريال. أحوّل الألفين الحين؟",
+          "en": "Your balance is 18,420 riyals. Shall I move the 2,000 now?"
+        },
+        {
+          "at": 7.4,
+          "kind": "tool",
+          "name": "transfer_funds",
+          "args": "{ \"from\": \"•••2201\", \"to\": \"•••7788\", \"amount_sar\": 2000 }",
+          "result": "{ \"reference\": \"TRF-77120\", \"status\": \"completed\" }"
+        },
+        {
+          "at": 9.2,
+          "kind": "msg",
+          "who": "AGENT",
+          "ar": "تم التحويل، المرجع سبعة سبعة مية وعشرين.",
+          "en": "Transfer complete — reference 77120."
+        }
+      ],
+      "outcome": [
+        [
+          "Transfer",
+          "TRF-77120"
+        ],
+        [
+          "Authentication",
+          "Voice + OTP"
+        ],
+        [
+          "Staff needed",
+          "None"
+        ]
+      ]
+    },
+    {
+      "id": "kyc-docs",
+      "kind": "document",
+      "name": "KYC document pack",
+      "promise": "New-customer paperwork read and checked before your officer even opens the file.",
+      "docName": "Account opening pack",
+      "docKind": "Scan · 6 pages",
+      "hard": "A photographed national ID, a salary certificate on letterhead, and a bank statement whose table runs over two pages.",
+      "page": {
+        "title": "Account opening pack",
+        "titleAr": "طلب فتح حساب",
+        "subtitle": "National ID · salary certificate · 3-month statement",
+        "rows": 6,
+        "photo": true,
+        "handwriting": "رقم الجوال ٠٥٥…"
+      },
+      "fields": [
+        {
+          "label": "full_name_ar",
+          "value": "خالد بن عبدالله العتيبي",
+          "confidence": 0.97,
+          "box": {
+            "x": 6,
+            "y": 10,
+            "w": 54,
+            "h": 9
+          }
+        },
+        {
+          "label": "national_id",
+          "value": "10•••4471",
+          "confidence": 0.99,
+          "box": {
+            "x": 6,
+            "y": 21,
+            "w": 44,
+            "h": 7
+          }
+        },
+        {
+          "label": "id_expiry",
+          "value": "2029-03-11",
+          "confidence": 0.86,
+          "note": "Hijri 1450-09-27 converted",
+          "box": {
+            "x": 6,
+            "y": 29,
+            "w": 40,
+            "h": 7
+          }
+        },
+        {
+          "label": "employer",
+          "value": "Saudi Aramco",
+          "confidence": 0.95,
+          "box": {
+            "x": 56,
+            "y": 21,
+            "w": 38,
+            "h": 7
+          }
+        },
+        {
+          "label": "monthly_income_sar",
+          "value": "28500.00",
+          "confidence": 0.93,
+          "box": {
+            "x": 6,
+            "y": 40,
+            "w": 88,
+            "h": 8
+          }
+        },
+        {
+          "label": "statement_avg_balance",
+          "value": "41220.10",
+          "confidence": 0.71,
+          "note": "Table spans two pages — merged",
+          "box": {
+            "x": 6,
+            "y": 50,
+            "w": 88,
+            "h": 22
+          }
+        },
+        {
+          "label": "signature_match",
+          "value": "inconclusive",
+          "confidence": 0.52,
+          "note": "Routed to an officer",
+          "box": {
+            "x": 6,
+            "y": 76,
+            "w": 40,
+            "h": 10
+          }
+        }
+      ],
+      "outcome": [
+        [
+          "Fields",
+          "7 extracted"
+        ],
+        [
+          "To review",
+          "2 of 7"
+        ],
+        [
+          "Officer time saved",
+          "About 15 minutes"
+        ]
+      ]
+    },
+    {
+      "id": "aml",
+      "kind": "workflow",
+      "name": "AML alert triage",
+      "promise": "Suspicious-activity alerts checked and evidenced automatically, so your team only sees the real ones.",
+      "trigger": "Transaction monitoring raises a structuring alert",
+      "reading": "4 cash deposits of SAR 9,500 across 3 branches in 48 hours",
+      "steps": [
+        {
+          "t": "Pull customer profile",
+          "d": "Core banking · how long a customer, what is normal for them",
+          "system": "Core banking"
+        },
+        {
+          "t": "Compare against baseline",
+          "d": "Deposits 6.2× the 90-day norm",
+          "system": "Core banking"
+        },
+        {
+          "t": "Check counterparties",
+          "d": "No sanctions or PEP match",
+          "system": "Sanctions list"
+        },
+        {
+          "t": "Assemble evidence pack",
+          "d": "Statements, KYC, prior alerts attached",
+          "system": "Case system"
+        },
+        {
+          "t": "Score and route",
+          "d": "Scored 0.78 — sent to a person, never closed automatically",
+          "system": "Analyst queue"
+        }
+      ],
+      "outcome": [
+        [
+          "Evidence pack",
+          "Pre-assembled"
+        ],
+        [
+          "Routed to",
+          "Analyst queue"
+        ],
+        [
+          "Closed without review",
+          "Never"
+        ]
+      ]
+    },
+    {
+      "id": "rm-note",
+      "kind": "dictation",
+      "name": "Relationship manager notes",
+      "promise": "A relationship manager talks in the car, and the customer record updates itself.",
+      "spoken": "تكلمت مع أبو محمد اليوم، مهتم بمنتج التمويل العقاري بس يبغى يعرف الهامش، وعده أرسل له العرض قبل الخميس",
+      "spokenEn": "Spoke to Abu Mohammed today, interested in the mortgage product but wants to know the margin, promised to send the offer before Thursday.",
+      "polished": "Client meeting — Abu Mohammed (C-4471)\n\nInterest: Mortgage product. Outstanding question on margin.\nCommitment: Send indicative offer before Thursday.\nNext step: Prepare pricing sheet, route for credit sign-off.",
+      "target": "Salesforce",
+      "action": {
+        "name": "log_activity_and_task",
+        "args": "{ \"account\": \"C-4471\", \"due\": \"Thursday\" }",
+        "result": "{ \"activity_id\": \"ACT-2290\", \"task_created\": true }"
+      },
+      "outcome": [
+        [
+          "CRM",
+          "Updated"
+        ],
+        [
+          "Task",
+          "Due Thursday"
+        ],
+        [
+          "Typing",
+          "None"
+        ]
+      ]
+    }
+  ]
+}
