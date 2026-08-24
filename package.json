@@ -1,0 +1,12 @@
+{
+  "name": "saudi-banking-voice-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Free, self-hosted Arabic voice agent for Saudi banks — card disputes, balances, transfers and fraud call-backs in Najdi Arabic. Docker, MIT, no seats.",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node examples/node/index.mjs"
+  },
+  "license": "MIT"
+}
